@@ -14,8 +14,8 @@ let debounceEnd = document.getElementById('debounceEnd')
 let interval = null
 let intervalDebounceEnd
 let image = null
-let i = 5
-let iDebounceEnd = 45
+let i = countdownSeconds
+let iDebounceEnd = resultTimeoutSeconds
 let currentPhotoUUID = null
 const captureWidth = 1920 * 2
 const captureHeight = 1080 * 2
@@ -48,15 +48,15 @@ document.getElementById('snapWindow').addEventListener('click', snapAndSendImage
 
 function snapAndSendImage() {
   document.getElementById('snapWindow').removeEventListener('click', snapAndSendImage)
-  debounce.innerHTML = 'Pensez à sourire :)'
+  debounce.innerHTML = smileText
   interval = setInterval(() => {
     if (i === 0) {
-      video.style.display = 'none'
+      document.getElementById('videoContainer').style.display = 'none'
       secondScreenContainer.style.display = 'block'
       clearInterval(interval)
       debounce.innerText = ''
       Bigcontext.drawImage(video, 0, 0, captureWidth, captureHeight)
-      i = 5
+      i = countdownSeconds
       const myRequest = new Request('/photo/', {
         method: 'POST',
         body: canvasToBase64()
@@ -81,7 +81,7 @@ function snapAndSendImage() {
                 iDebounceEnd +
                 ' ' +
                 secText +
-                ".<br />Vous pouvez également appuyer sur le buzzer si vous avez fini. <br />Merci d'avoir utilisé ce photobooth :)"
+                ".<br />" + dismissText + " <br />" + thanksText
               iDebounceEnd = iDebounceEnd - 1
             }
           }, 1000)
@@ -91,7 +91,7 @@ function snapAndSendImage() {
         }
       })
     } else {
-      debounce.innerText = i + '...'
+      debounce.innerText = i
       i = i - 1
     }
   }, 1000)

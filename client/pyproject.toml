@@ -1,7 +1,7 @@
 [project]
 name = "photobooth"
 version = "1.0.0"
-description = "Capitole du Libre Photobooth."
+description = "Photobooth application."
 authors = [
     { name = "Clement Cavanier", email = "clement.cavanier@bleemeo.com" },
     { name = "Lionel Porcheron", email = "lionel.porcheron@bleemeo.com" },
@@ -17,6 +17,7 @@ dependencies = [
     "Pillow",
     "psycopg",
     "qrcode",
+    "requests",
 ]
 
 [dependency-groups]

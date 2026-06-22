@@ -53,7 +53,7 @@ def photo(request):
         datetime_str=now,
     )
     if settings.PHOTOBOOTH_USE_QR_CODE:
-        photobooth.tasks.rsync_photo.delay()
+        photobooth.tasks.upload_photo.delay(str(photo_uuid), now)
     return HttpResponse(
         str(photo.id),
         status=200,
@@ -132,14 +132,14 @@ def email(request):
     photo.save()
 
     msg = EmailMessage(
-        "Photobooth Capitole du Libre",
-        "Bonjour,\nMerci de votre passage au Capitole du Libre",
+        settings.PHOTOBOOTH_EVENT_NAME,
+        f"Bonjour,\nMerci de votre passage au {settings.PHOTOBOOTH_EVENT_NAME}",
         settings.FROM_EMAIL,
         [photo.email],
     )
     with photo.photo.open() as fileobj:
         msg_img = fileobj.read()
-        msg.attach("capitole-du-libre.jpeg", msg_img, "image/jpeg")
+        msg.attach("photobooth.jpeg", msg_img, "image/jpeg")
     msg.send()
 
     photo.email_sent_at = timezone.now()

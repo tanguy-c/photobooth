@@ -8,6 +8,10 @@ billiard==4.2.4
     # via celery
 celery==5.6.3
     # via photobooth
+certifi==2026.6.17
+    # via requests
+charset-normalizer==3.4.7
+    # via requests
 click==8.4.1
     # via
     #   celery
@@ -28,6 +32,8 @@ django==6.0.5
     # via photobooth
 exif==1.6.1
     # via photobooth
+idna==3.18
+    # via requests
 kombu==5.6.2
     # via celery
 packaging==26.2
@@ -44,6 +50,8 @@ python-dateutil==2.9.0.post0
     # via celery
 qrcode==8.2
     # via photobooth
+requests==2.34.2
+    # via photobooth
 six==1.17.0
     # via python-dateutil
 sqlparse==0.5.5
@@ -58,6 +66,8 @@ tzdata==2026.2
     #   tzlocal
 tzlocal==5.3.1
     # via celery
+urllib3==2.7.0
+    # via requests
 vine==5.1.0
     # via
     #   amqp
