@@ -1,0 +1,71 @@
+services:
+    django:
+        build: client
+        environment:
+        - DJANGO_SETTINGS_MODULE=photobooth.settings.production
+        - DJANGO_DATABASE_PASSWORD=password
+        - PHOTOBOOTH_BACKEND=webdav
+        - PHOTOBOOTH_WEBDAV_URL=http://caddy/upload
+        - PHOTOBOOTH_WEBDAV_USERNAME=photobooth
+        - PHOTOBOOTH_WEBDAV_PASSWORD=photobooth
+        - PHOTOBOOTH_BASE_URL=http://localhost:8080/
+        - PHOTOBOOTH_FROM_EMAIL=noreply@photobooth.local
+        - PHOTOBOOTH_EVENT_NAME=Photobooth
+        # GPS coordinates for EXIF data, format: "lat,lon,alt" - use https://www.latlong.net/
+        - PHOTOBOOTH_GPS_COORDINATES=
+        - PHOTOBOOTH_LOGO_URL=/static/img/logo.png
+        - PHOTOBOOTH_ACTION_TEXT=Touchez l'écran pour prendre une photo
+        - PHOTOBOOTH_SMILE_TEXT=5
+        - PHOTOBOOTH_COUNTDOWN_SECONDS=4
+        - PHOTOBOOTH_RESULT_TIMEOUT_SECONDS=200
+        - PHOTOBOOTH_DISMISS_TEXT=Vous pouvez également toucher l'écran si vous avez fini.
+        - PHOTOBOOTH_THANKS_TEXT=
+        volumes:
+        - ./client:/srv/app
+        - media:/srv/app/media
+        ports:
+        - 8005:8000
+        restart: unless-stopped
+
+    celery:
+        build: client
+        command: ["/srv/app/deploy/run-celery.sh"]
+        environment:
+        - DJANGO_SETTINGS_MODULE=photobooth.settings.production
+        - DJANGO_DATABASE_PASSWORD=password
+        - PHOTOBOOTH_BACKEND=webdav
+        - PHOTOBOOTH_WEBDAV_URL=http://caddy/upload
+        - PHOTOBOOTH_WEBDAV_USERNAME=photobooth
+        - PHOTOBOOTH_WEBDAV_PASSWORD=photobooth
+        volumes:
+        - ./client:/srv/app
+        - media:/srv/app/media
+        restart: unless-stopped
+
+    rabbitmq:
+        image: rabbitmq:3
+        restart: unless-stopped
+
+    postgresql:
+        image: postgres:18
+        environment:
+            - POSTGRES_USER=photobooth_user
+            - POSTGRES_PASSWORD=password
+            - POSTGRES_DB=photobooth
+        restart: unless-stopped
+
+    caddy:
+        build: server
+        environment:
+        - DOMAIN=http://
+        - WEBDAV_USERNAME=photobooth
+        - WEBDAV_PASSWORD_HASH=$$2b$$14$$ROMs3SRV9DNk4T3C3vNe.uk1Jy8rA6dwPgb1OSh6RZV3zN4ZypbjG
+        volumes:
+        - photos:/srv/photos
+        ports:
+        - 8080:80
+        restart: unless-stopped
+
+volumes:
+  media: {}
+  photos: {}

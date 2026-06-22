@@ -1,0 +1,35 @@
+{$DOMAIN:localhost} {
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+		Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'self'"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+
+	root * /srv/photos
+
+	handle /upload/* {
+		basicauth {
+			{$WEBDAV_USERNAME} {$WEBDAV_PASSWORD_HASH}
+		}
+		route {
+			@not_image not path *.jpg *.jpeg *.png *.webp
+			respond @not_image 403
+
+			webdav {
+				root /srv/photos
+				prefix /upload
+			}
+		}
+	}
+
+	handle {
+		@not_image not path *.jpg *.jpeg *.png *.webp / /browse
+		respond @not_image 403
+
+		file_server
+	}
+}

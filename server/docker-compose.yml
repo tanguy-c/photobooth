@@ -1,0 +1,28 @@
+services:
+  caddy:
+    image: ghcr.io/tanguy-c/photobooth/server:latest
+    env_file: .env
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - photos:/srv/photos
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "1.0"
+
+volumes:
+  photos: {}
+  caddy_data: {}
+  caddy_config: {}

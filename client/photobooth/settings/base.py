@@ -138,9 +138,35 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1024*1024*20
 
-FROM_EMAIL = 'noreply@capitoledulibre.org'
+FROM_EMAIL = os.environ.get("PHOTOBOOTH_FROM_EMAIL", "noreply@photobooth.local")
 PHOTOBOOTH_USE_QR_CODE = True
-PHOTOBOOTH_BASE_URL = 'https://photo.capitoledulibre.org/'
-PHOTOBOOTH_RSYNC_COMMAND = 'echo rsync'
+PHOTOBOOTH_BASE_URL = os.environ.get("PHOTOBOOTH_BASE_URL", "http://localhost:8000/")
+PHOTOBOOTH_RSYNC_COMMAND = os.environ.get("PHOTOBOOTH_RSYNC_COMMAND", "echo rsync")
+
+PHOTOBOOTH_EVENT_NAME = os.environ.get("PHOTOBOOTH_EVENT_NAME", "Photobooth")
+# GPS coordinates for EXIF data, format: "lat,lon,alt" e.g. "43.601298,1.454514,155"
+# Use https://www.latlong.net/ to find coordinates. Leave empty to skip GPS EXIF data.
+PHOTOBOOTH_GPS_COORDINATES = os.environ.get("PHOTOBOOTH_GPS_COORDINATES", "")
+PHOTOBOOTH_LOGO_URL = os.environ.get("PHOTOBOOTH_LOGO_URL", "")
+PHOTOBOOTH_ACTION_TEXT = os.environ.get(
+    "PHOTOBOOTH_ACTION_TEXT", "Appuyez sur le buzzer pour prendre une photo"
+)
+PHOTOBOOTH_COUNTDOWN_SECONDS = int(os.environ.get("PHOTOBOOTH_COUNTDOWN_SECONDS", "5"))
+PHOTOBOOTH_RESULT_TIMEOUT_SECONDS = int(
+    os.environ.get("PHOTOBOOTH_RESULT_TIMEOUT_SECONDS", "45")
+)
+PHOTOBOOTH_SMILE_TEXT = os.environ.get("PHOTOBOOTH_SMILE_TEXT", "Pensez à sourire :)")
+PHOTOBOOTH_THANKS_TEXT = os.environ.get(
+    "PHOTOBOOTH_THANKS_TEXT", "Merci d'avoir utilisé ce photobooth :)"
+)
+PHOTOBOOTH_DISMISS_TEXT = os.environ.get(
+    "PHOTOBOOTH_DISMISS_TEXT",
+    "Vous pouvez également appuyer sur le buzzer si vous avez fini.",
+)
+
+PHOTOBOOTH_BACKEND = os.environ.get("PHOTOBOOTH_BACKEND", "rsync")
+PHOTOBOOTH_WEBDAV_URL = os.environ.get("PHOTOBOOTH_WEBDAV_URL", "")
+PHOTOBOOTH_WEBDAV_USERNAME = os.environ.get("PHOTOBOOTH_WEBDAV_USERNAME", "")
+PHOTOBOOTH_WEBDAV_PASSWORD = os.environ.get("PHOTOBOOTH_WEBDAV_PASSWORD", "")
 
 EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'

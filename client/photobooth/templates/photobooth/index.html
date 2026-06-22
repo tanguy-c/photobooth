@@ -7,18 +7,23 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
   <link rel="stylesheet" href="/static/css/main.css" />
-  <title>Photobooth Capitole du Libre</title>
+  <title>{{ settings.PHOTOBOOTH_EVENT_NAME }}</title>
 </head>
 
 <body id="snapWindow">
   <canvas style="display: none" id="Bigcanvas" class="border"></canvas>
-  <video id="video" autoplay></video>
-  <p id="debounce" class="snapAndDebounce">Appuyez sur le buzzer pour prendre une photo</p>
+  <div id="videoContainer">
+    <video id="video" autoplay></video>
+    <img id="maskOverlay" src="/static/img/photobooth-mask.png" alt="" />
+  </div>
+  <p id="debounce" class="snapAndDebounce">{{ settings.PHOTOBOOTH_ACTION_TEXT }}</p>
   <p id="success" class="snapAndDebounce">Vous devriez recevoir un mail avec votre photo dans quelques instants. <br />
-    Merci d'avoir utilisé ce photobooth :)</p>
+    {{ settings.PHOTOBOOTH_THANKS_TEXT }}</p>
   <div id="secondScreenContainer">
     <div id="title" class="mx-auto">
-      <img width="100%" src="/static/img/logo-capitoledulibre.png" />
+      {% if settings.PHOTOBOOTH_LOGO_URL %}
+      <img width="100%" src="{{ settings.PHOTOBOOTH_LOGO_URL }}" alt="{{ settings.PHOTOBOOTH_EVENT_NAME }}" />
+      {% endif %}
     </div>
     <div class="mx-auto videos">
       <img id="imgResult" width="100%" src="" />
@@ -41,12 +46,12 @@
         <h2 id="qrcodeText">Scanner un QR code pour Télécharger votre photo.</h2>
         <div class="row">
           <div class="col">
-            <h4 id="qrcodeText">Sans contour</h4>
-            <img id='qrcode' src="" alt="QR Code en cours de chargement..." class="center" width="300" height="300" />
+            <h4 class="qrcodeColText">Sans contour</h4>
+            <img id='qrcode' src="" alt="QR Code en cours de chargement..." class="center" width="280" height="280" />
           </div>
           <div class="col">
-            <h4 id="qrcodeText">Avec contour</h4>
-            <img id='qrcode_background' src="" alt="QR Code en cours de chargement..." class="center" width="300" height="300" />
+            <h4 class="qrcodeColText">Avec contour</h4>
+            <img id='qrcode_background' src="" alt="QR Code en cours de chargement..." class="center" width="280" height="280" />
           </div>
         </div>
         <h4 id="debounceEnd"></h4>
@@ -60,6 +65,12 @@
     {% else %}
     let use_qr_code = false;
     {% endif %}
+    let countdownSeconds = {{ settings.PHOTOBOOTH_COUNTDOWN_SECONDS }};
+    let resultTimeoutSeconds = {{ settings.PHOTOBOOTH_RESULT_TIMEOUT_SECONDS }};
+    let smileText = "{{ settings.PHOTOBOOTH_SMILE_TEXT|escapejs }}";
+    let thanksText = "{{ settings.PHOTOBOOTH_THANKS_TEXT|escapejs }}";
+    let actionText = "{{ settings.PHOTOBOOTH_ACTION_TEXT|escapejs }}";
+    let dismissText = "{{ settings.PHOTOBOOTH_DISMISS_TEXT|escapejs }}";
   </script>
   <script src="/static/js/bootstrap.bundle.min.js"></script>
   <script src="/static/js/index.js" />

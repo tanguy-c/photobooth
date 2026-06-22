@@ -105,8 +105,10 @@ venv.bak/
 
 front/node_modules/
 
-/media/
+client/media/
+data/
 .vscode
-/ssh/
+client/ssh/
+server/.env
 
 .DS_Store

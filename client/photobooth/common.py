@@ -1,5 +1,6 @@
 import io
 import uuid
+from django.conf import settings
 from django.utils import timezone
 from PIL import Image
 from exif import Image as ImageExif
@@ -8,21 +9,32 @@ from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 
-def add_exif_data(photo_uuid: uuid.UUID, now: str):
-    """
-    Adds date and time to an image.
-    """
+def _decimal_to_dms(decimal_deg):
+    d = int(abs(decimal_deg))
+    m = int((abs(decimal_deg) - d) * 60)
+    s = round((abs(decimal_deg) - d - m / 60) * 3600, 4)
+    return (float(d), float(m), s)
 
+
+def add_exif_data(photo_uuid: uuid.UUID, now: str):
     with open(f"media/{now}{str(photo_uuid)}.jpg", "rb") as image_file:
         my_image = ImageExif(image_file)
 
         my_image.datetime_original = timezone.localtime().strftime(DATETIME_STR_FORMAT)
-        my_image.gps_latitude = (43.0, 36.0, 7.848)
-        my_image.gps_latitude_ref = "N"
-        my_image.gps_longitude = (1.0, 27.0, 16.83)
-        my_image.gps_longitude_ref = "E"
-        my_image.gps_altitude = 155
-        my_image.gps_altitude_ref = GpsAltitudeRef.ABOVE_SEA_LEVEL
+
+        gps_coords = settings.PHOTOBOOTH_GPS_COORDINATES
+        if gps_coords:
+            parts = gps_coords.split(",")
+            lat = float(parts[0])
+            lon = float(parts[1])
+            alt = float(parts[2]) if len(parts) > 2 else 0
+
+            my_image.gps_latitude = _decimal_to_dms(lat)
+            my_image.gps_latitude_ref = "N" if lat >= 0 else "S"
+            my_image.gps_longitude = _decimal_to_dms(lon)
+            my_image.gps_longitude_ref = "E" if lon >= 0 else "W"
+            my_image.gps_altitude = alt
+            my_image.gps_altitude_ref = GpsAltitudeRef.ABOVE_SEA_LEVEL
 
         with open(f"media/{now}{str(photo_uuid)}.jpg", "wb") as new_my_image:
             new_my_image.write(my_image.get_file())
