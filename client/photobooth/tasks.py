@@ -1,6 +1,7 @@
 import logging
 
 from celery import shared_task
+from django.db.models import Q
 from django.utils import timezone
 
 from photobooth.backends import get_backend
@@ -19,13 +20,29 @@ logger = logging.getLogger(__name__)
 def upload_photo(self, photo_uuid, datetime_str):
     from photobooth.models import Photo
 
+    if Photo.objects.filter(
+        id=photo_uuid, upload_status=Photo.UploadStatus.SUCCESS
+    ).exists():
+        return
+
+    Photo.objects.filter(id=photo_uuid).update(
+        upload_status=Photo.UploadStatus.UPLOADING,
+    )
+
     try:
         backend = get_backend()
         backend.upload(photo_uuid, datetime_str)
-    except Exception:
-        Photo.objects.filter(id=photo_uuid).update(
-            upload_status=Photo.UploadStatus.FAILED,
-            upload_error=f"Upload failed, retry {self.request.retries}/{self.max_retries}",
+    except Exception as exc:
+        is_final = self.request.retries >= self.max_retries
+        Photo.objects.filter(id=photo_uuid).exclude(
+            upload_status=Photo.UploadStatus.SUCCESS,
+        ).update(
+            upload_status=(
+                Photo.UploadStatus.FAILED
+                if is_final
+                else Photo.UploadStatus.UPLOADING
+            ),
+            upload_error=str(exc),
         )
         raise
 
@@ -42,11 +59,10 @@ def retry_failed_uploads():
 
     from photobooth.models import Photo
 
-    # Only retry photos older than 2 minutes (give the initial task time to complete)
-    cutoff = timezone.now() - timedelta(minutes=2)
+    cutoff = timezone.now() - timedelta(minutes=10)
     photos = Photo.objects.filter(
-        upload_status__in=[Photo.UploadStatus.PENDING, Photo.UploadStatus.FAILED],
-        created_at__lt=cutoff,
+        Q(upload_status=Photo.UploadStatus.FAILED)
+        | Q(upload_status=Photo.UploadStatus.PENDING, created_at__lt=cutoff),
     )
     count = 0
     for photo in photos:

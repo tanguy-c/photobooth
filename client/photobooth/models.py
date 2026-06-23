@@ -7,6 +7,7 @@ from django.utils import timezone
 class Photo(models.Model):
     class UploadStatus(models.TextChoices):
         PENDING = "pending"
+        UPLOADING = "uploading"
         SUCCESS = "success"
         FAILED = "failed"
 
