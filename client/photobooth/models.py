@@ -5,6 +5,11 @@ from django.utils import timezone
 
 
 class Photo(models.Model):
+    class UploadStatus(models.TextChoices):
+        PENDING = "pending"
+        SUCCESS = "success"
+        FAILED = "failed"
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     email = models.EmailField()
@@ -13,3 +18,10 @@ class Photo(models.Model):
     datetime_str = models.CharField(blank=True, max_length=20)
     created_at = models.DateTimeField(default=timezone.now)
     email_sent_at = models.DateTimeField(null=True)
+    upload_status = models.CharField(
+        max_length=10,
+        choices=UploadStatus.choices,
+        default=UploadStatus.PENDING,
+    )
+    upload_error = models.TextField(blank=True, default="")
+    uploaded_at = models.DateTimeField(null=True, blank=True)
