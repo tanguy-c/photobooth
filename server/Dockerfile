@@ -5,12 +5,15 @@ RUN xcaddy build \
 
 FROM caddy:2.11.4-alpine
 
+RUN apk add --no-cache su-exec
+
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
 COPY Caddyfile /etc/caddy/Caddyfile
+COPY entrypoint.sh /entrypoint.sh
 
-RUN mkdir -p /srv/photos && chown 1000:1000 /srv/photos
+RUN mkdir -p /srv/photos
 
-USER 1000
+ENTRYPOINT ["/entrypoint.sh"]
 
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
     CMD wget -qO /dev/null http://localhost:2019/config/ || exit 1
