@@ -27,6 +27,7 @@ def upload_photo(self, photo_uuid, datetime_str):
 
     Photo.objects.filter(id=photo_uuid).update(
         upload_status=Photo.UploadStatus.UPLOADING,
+        upload_attempted_at=timezone.now(),
     )
 
     try:
@@ -46,7 +47,9 @@ def upload_photo(self, photo_uuid, datetime_str):
         )
         raise
 
-    Photo.objects.filter(id=photo_uuid).update(
+    Photo.objects.filter(id=photo_uuid).exclude(
+        upload_status=Photo.UploadStatus.SUCCESS,
+    ).update(
         upload_status=Photo.UploadStatus.SUCCESS,
         upload_error="",
         uploaded_at=timezone.now(),
@@ -59,10 +62,15 @@ def retry_failed_uploads():
 
     from photobooth.models import Photo
 
-    cutoff = timezone.now() - timedelta(minutes=10)
+    cutoff_pending = timezone.now() - timedelta(minutes=10)
+    cutoff_stuck = timezone.now() - timedelta(minutes=30)
     photos = Photo.objects.filter(
         Q(upload_status=Photo.UploadStatus.FAILED)
-        | Q(upload_status=Photo.UploadStatus.PENDING, created_at__lt=cutoff),
+        | Q(upload_status=Photo.UploadStatus.PENDING, created_at__lt=cutoff_pending)
+        | Q(
+            upload_status=Photo.UploadStatus.UPLOADING,
+            upload_attempted_at__lt=cutoff_stuck,
+        ),
     )
     count = 0
     for photo in photos:

@@ -20,9 +20,10 @@ class Photo(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     email_sent_at = models.DateTimeField(null=True)
     upload_status = models.CharField(
-        max_length=10,
+        max_length=20,
         choices=UploadStatus.choices,
         default=UploadStatus.PENDING,
     )
     upload_error = models.TextField(blank=True, default="")
+    upload_attempted_at = models.DateTimeField(null=True, blank=True)
     uploaded_at = models.DateTimeField(null=True, blank=True)
