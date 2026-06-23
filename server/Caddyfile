@@ -1,4 +1,4 @@
-{$DOMAIN:localhost} {
+{$DOMAIN::8080} {
 	header {
 		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
 		Content-Security-Policy "default-src 'none'; img-src 'self'; style-src 'self'"

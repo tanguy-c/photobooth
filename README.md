@@ -74,11 +74,13 @@ Copy the example env file and fill in your values:
 cp server/.env.example server/.env
 ```
 
-| Variable | Description |
-|---|---|
-| `DOMAIN` | Public domain (e.g. `photo.example.org`). Caddy auto-provisions TLS via Let's Encrypt |
-| `WEBDAV_USERNAME` | Username for WebDAV uploads |
-| `WEBDAV_PASSWORD_HASH` | Bcrypt hash of the upload password |
+| Variable | Description | Default |
+|---|---|---|
+| `DOMAIN` | Public domain (e.g. `photo.example.org`). Caddy auto-provisions TLS via Let's Encrypt. Use `:8080` behind a reverse proxy | `:8080` |
+| `PUID` | User ID for file permissions | `1000` |
+| `PGID` | Group ID for file permissions | `PUID` |
+| `WEBDAV_USERNAME` | Username for WebDAV uploads | |
+| `WEBDAV_PASSWORD_HASH` | Bcrypt hash of the upload password | |
 
 Generate the password hash with:
 
@@ -103,7 +105,7 @@ services:
     image: ghcr.io/tanguy-c/photobooth/server:latest
     env_file: .env
     ports:
-      - "80:80"
+      - "80:8080"
       - "443:443"
       - "443:443/udp"
     volumes:
@@ -127,6 +129,8 @@ Where `.env` contains:
 
 ```sh
 DOMAIN=photo.example.org
+PUID=1000
+PGID=1000
 WEBDAV_USERNAME=photobooth
 WEBDAV_PASSWORD_HASH=$2b$14$...
 ```
