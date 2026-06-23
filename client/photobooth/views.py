@@ -54,6 +54,9 @@ def photo(request):
     )
     if settings.PHOTOBOOTH_USE_QR_CODE:
         photobooth.tasks.upload_photo.delay(str(photo_uuid), now)
+    else:
+        photo.upload_status = Photo.UploadStatus.SUCCESS
+        photo.save(update_fields=["upload_status"])
     return HttpResponse(
         str(photo.id),
         status=200,

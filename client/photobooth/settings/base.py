@@ -164,6 +164,13 @@ PHOTOBOOTH_DISMISS_TEXT = os.environ.get(
     "Vous pouvez également appuyer sur le buzzer si vous avez fini.",
 )
 
+CELERY_BEAT_SCHEDULE = {
+    "retry-failed-uploads": {
+        "task": "photobooth.tasks.retry_failed_uploads",
+        "schedule": 5 * 60,
+    },
+}
+
 PHOTOBOOTH_BACKEND = os.environ.get("PHOTOBOOTH_BACKEND", "rsync")
 PHOTOBOOTH_WEBDAV_URL = os.environ.get("PHOTOBOOTH_WEBDAV_URL", "")
 PHOTOBOOTH_WEBDAV_USERNAME = os.environ.get("PHOTOBOOTH_WEBDAV_USERNAME", "")
