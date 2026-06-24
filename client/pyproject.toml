@@ -24,11 +24,12 @@ dependencies = [
 dev = [
     "autopep8",
     "flake8",
-    "tox",
     "pytest",
-    "pytest-django",
     "pytest-cov",
+    "pytest-django",
     "responses",
+    "ruff",
+    "tox",
 ]
 
 [tool.pytest.ini_options]
