@@ -32,6 +32,9 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
     steps:
       - uses: actions/checkout@v4
 
@@ -39,4 +42,20 @@ jobs:
 
       - run: uv sync --frozen
 
-      - run: uv run pytest --cov=photobooth --cov-report=term-missing --tb=short
+      - run: >
+          uv run pytest
+          --junitxml=report.xml
+          --cov=photobooth
+          --cov-report=term-missing
+          --cov-report=markdown:coverage.md
+          --tb=short
+
+      - name: Publish test results
+        uses: mikepenz/action-junit-report@v5
+        if: always()
+        with:
+          report_paths: client/report.xml
+
+      - name: Publish coverage summary
+        if: always()
+        run: cat coverage.md >> "$GITHUB_STEP_SUMMARY"
