@@ -1,0 +1,61 @@
+name: Client tests
+
+on:
+  push:
+    branches: [main]
+    paths: [client/**]
+  pull_request:
+    branches: [main]
+    paths: [client/**]
+
+concurrency:
+  group: client-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: client
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - run: uv sync --frozen
+
+      - run: uv run ruff check .
+
+      - run: uv run ruff format --check .
+
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      - run: uv sync --frozen
+
+      - run: >
+          uv run pytest
+          --junitxml=report.xml
+          --cov=photobooth
+          --cov-report=term-missing
+          --cov-report=markdown:coverage.md
+          --tb=short
+
+      - name: Publish test results
+        uses: mikepenz/action-junit-report@v5
+        if: always()
+        with:
+          report_paths: client/report.xml
+
+      - name: Publish coverage summary
+        if: always()
+        run: cat coverage.md >> "$GITHUB_STEP_SUMMARY"

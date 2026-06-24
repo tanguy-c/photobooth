@@ -39,9 +39,7 @@ def upload_photo(self, photo_uuid, datetime_str):
             upload_status=Photo.UploadStatus.SUCCESS,
         ).update(
             upload_status=(
-                Photo.UploadStatus.FAILED
-                if is_final
-                else Photo.UploadStatus.UPLOADING
+                Photo.UploadStatus.FAILED if is_final else Photo.UploadStatus.UPLOADING
             ),
             upload_error=str(exc),
         )

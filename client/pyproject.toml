@@ -24,8 +24,17 @@ dependencies = [
 dev = [
     "autopep8",
     "flake8",
+    "pytest",
+    "pytest-cov",
+    "pytest-django",
+    "responses",
+    "ruff",
     "tox",
 ]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "photobooth.settings.development"
+pythonpath = ["."]
 
 [tool.uv]
 package = false

@@ -34,4 +34,6 @@ class Command(BaseCommand):
         if count == 0:
             self.stdout.write("No photos to retry.")
         else:
-            self.stdout.write(self.style.SUCCESS(f"Queued {count} photo(s) for upload."))
+            self.stdout.write(
+                self.style.SUCCESS(f"Queued {count} photo(s) for upload.")
+            )
